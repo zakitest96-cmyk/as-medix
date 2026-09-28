@@ -5,6 +5,16 @@ const nextConfig = {
   // ── Performance ──────────────────────────────────────────────────────────
   compress: true,
   poweredByHeader: false, // Remove "X-Powered-By: Next.js" fingerprint
+  swcMinify: true,
+
+  experimental: {
+    optimizePackageImports: [
+      'lucide-react',
+      '@supabase/supabase-js',
+      'clsx',
+      'tailwind-merge',
+    ],
+  },
 
   images: {
     domains: [

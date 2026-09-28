@@ -9,7 +9,6 @@ export async function GET(req: Request) {
     const yearParam = url.searchParams.get('year');
     const facultyParam = url.searchParams.get('faculty');
 
-    db.updateSpecialtyCounts();
     let specialties = db.getSpecialties();
 
     if (yearParam && yearParam !== 'all' && yearParam !== 'TOUS') {
@@ -23,7 +22,14 @@ export async function GET(req: Request) {
       specialties = specialties.filter(s => !s.faculty || s.faculty === 'TOUS' || s.faculty === facultyParam);
     }
 
-    return NextResponse.json({ success: true, specialties });
+    return NextResponse.json(
+      { success: true, specialties },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+        },
+      }
+    );
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }

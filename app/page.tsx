@@ -3,15 +3,31 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { Logo } from '@/components/brand/Logo';
-import { HeartOverviewCard } from '@/components/home/HeartOverviewCard';
 import { ALL_SPECIALTIES } from '@/lib/db/seedData';
 import { getSpecialtyEmoji } from '@/lib/specialtyEmojis';
 import { useFaculty } from '@/components/context/FacultyContext';
 import { useTheme } from '@/components/theme/ThemeProvider';
 import { useSpecialtyTheme } from '@/components/context/SpecialtyThemeContext';
 import { SpecialtyLogo } from '@/components/brand/SpecialtyLogo';
-import { QcmLaunchModal } from '@/components/modals/QcmLaunchModal';
+
+const HeartOverviewCard = dynamic(
+  () => import('@/components/home/HeartOverviewCard').then((m) => m.HeartOverviewCard),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-80 rounded-3xl bg-slate-900/40 border border-slate-800/60 animate-pulse flex items-center justify-center text-slate-500 text-sm">
+        Chargement...
+      </div>
+    ),
+  }
+);
+
+const QcmLaunchModal = dynamic(
+  () => import('@/components/modals/QcmLaunchModal').then((m) => m.QcmLaunchModal),
+  { ssr: false }
+);
 import {
   ArrowRight, Check, Sparkles, BookOpen, Brain, ShieldAlert,
   Activity, Star, ChevronRight, CheckCircle2, Lock, Clock, Users, Play,

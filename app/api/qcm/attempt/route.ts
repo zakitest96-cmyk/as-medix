@@ -6,6 +6,10 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 
 import { QCM } from '@/types';
 
+let cachedCloudQcms: any[] | null = null;
+let lastCloudFetchTime = 0;
+const CLOUD_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
@@ -26,8 +30,19 @@ export async function GET(req: NextRequest) {
       qcmsMap.set(q.id, q);
     }
     try {
-      const { data: cloudQcms, error } = await supabaseAdmin.from('qcms').select('*');
-      if (!error && Array.isArray(cloudQcms)) {
+      let cloudQcms = cachedCloudQcms;
+      const isCacheFresh = cloudQcms && (Date.now() - lastCloudFetchTime < CLOUD_CACHE_TTL_MS);
+
+      if (!isCacheFresh) {
+        const { data, error } = await supabaseAdmin.from('qcms').select('*');
+        if (!error && Array.isArray(data)) {
+          cloudQcms = data;
+          cachedCloudQcms = data;
+          lastCloudFetchTime = Date.now();
+        }
+      }
+
+      if (Array.isArray(cloudQcms)) {
         for (const row of cloudQcms) {
           qcmsMap.set(row.id, {
             id: row.id,
